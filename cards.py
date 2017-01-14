@@ -10,20 +10,21 @@ class deck:
 
 face = ['J', 'Q', 'K', 'A']
 
-def deal(hand, cards):
+def deal(hand, cards, x):
 	count = 0 
 	for i in cards.suites:
 		if len(cards.dictionary[i]) == 0:
 			del cards.dictionary[i]
 			cards.suites.remove(i)	
 	
-	a = random.choice(cards.suites)
-	first = cards.dictionary[a]
-	x = random.choice(first)
-	first.remove(x)	
+	for i in range(x):
+		a = random.choice(cards.suites)
+		first = cards.dictionary[a]
+		x = random.choice(first)
+		first.remove(x)	
 	
-	hand.append(a)
-	hand.append(x)
+		hand.append(a)
+		hand.append(x)
 
 def display(cards):
 	x = 1
@@ -186,4 +187,3 @@ class player:
 		self.rank = 0 
 		self.hcard = 0 
 		self.kicker = 0 
-
