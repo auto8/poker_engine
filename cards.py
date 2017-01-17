@@ -57,7 +57,16 @@ def hand_data(hand, *args):
 
 def straight(hand, a):
 	y = sorted(hand)
-	start = 0 
+	start = 0
+	dups = []
+	for i in range(1, len(y)):
+		if y[start] == y[i]:
+			dups.append((y[start]))
+		start += 1 
+	for i in dups:
+		y.remove(i)
+		a = len(y)
+	start = 0
 	temp = []
 	count = 1
 	x = []
@@ -76,7 +85,6 @@ def straight(hand, a):
 		if count == 5:
 			x = temp
 		start += 1 
-
 	if len(x) >= 5:
 		return x 
 
@@ -84,13 +92,13 @@ def straight(hand, a):
 def high_card(hand, player):
 	l = [player.hand[1], player.hand[3]]
 	count = 0 
-	x = 0 
+	x = 0
 	if player.rank == 1:
 		for i in l:
-			if i not in hand:
+			if i not in hand[0]:
 				player.kicker = i
 				count += 1  
-			if i in hand:
+			if i in hand[0]:
 				player.hcard = i
 		if count == 2:
 			player.hcard = hand[0]
@@ -98,20 +106,68 @@ def high_card(hand, player):
 				player.kicker = l[0]
 			else:
 				player.kicker = l[1]
+		print(player.hcard, player.kicker)	
 	
 	if player.rank == 2:
-		for i in hand:
-			if i > x:
-				x = i 
-		player.hcard = x
-	if player.rank == 5:
-		x = 0 
-		for i in hand:
-			if i > x:
-				x = i  	
-		player.hcard = x
-		
+		x, y = 0, 0 
+		out = []
+		if len(hand) == 2:
+			if hand[0][0] > hand[1][1]:
+				x = hand[0][0]
+				y = hand[1][1]
+			else:
+				x = hand[1][1]
+				y = hand[0][0]
+		else:
+			for i in hand:
+				out.append(i[0])
+			smallest = min(out)
+			for i in hand:
+				if i[0] == smallest:
+					hand.remove(i)
+			if hand[0][0] > hand[1][1]:
+				x = hand[0][0]
+				y = hand[1][1]
+			else:
+				x = hand[1][1]
+				y = hand[0][0]
+		player.hcard, player.kicker = x, y
+		print(player.hcard, player.kicker)
 	
+	if player.rank == 3:
+		x = 0
+		if len(hand) > 1:
+			if hand[0][0] > hand[1][1]:
+				x = hand[0][0]
+			else:
+				x = hand[1][1]
+		else:
+			x = hand[0][0]
+		player.hcard = x
+		print(player.hcard)	
+	if player.rank == 4:
+		player.hcard = max(hand)
+
+	if player.rank == 5:
+		player.hcard = max(hand)
+		
+	if player.rank == 6:
+		for i in hand:
+			if len(i) == 3:
+				player.hcard = i[0]
+			if len(i) == 2:
+				player.kicker = i[0]
+
+
+	if player.rank == 7:
+		if len(hand) >= 2:
+			for i in hand:
+				if len(i) == 4:
+					player.hcard = i[0]
+		else:
+			player.hcard = hand[0][0]
+		print(player.hcard)
+
 def get_rank(community, player):
 	suites = ['h', 's', 'c', 'd']
 	royal = [14, 13, 12, 11, 10]
@@ -134,52 +190,60 @@ def get_rank(community, player):
 					player.rank = 8
 					high_card(check, player)
 			else:
-				player.rank = 6
+				player.rank = 5
 				high_card(dictionary[i], player)
 	
 	for i in suites:
 		for x in dictionary[i]:
 			card_value.append(x)
-
+	
 	if straight(card_value, len(card_value)) != None:
-		player.rank = 5
+		player.rank = 4
 		high_card(straight(card_value, len(card_value)), player)
 	
-	x = 0 
-	count = 0
-	match = [] 
-	while x < len(card_value):
-		for i in card_value:
-			if card_value[x] == i:
-				count += 1 
-		if count >= 2:
-			match.append(card_value[x])
-		x += 1
-		count = 0
-	if len(match) == 2:
-		player.rank = 1 
-		high_card(match, player)
-	if len(match) == 3:
-		player.rank = 4
-		high_card(match, player)
-	if len(match) == 4:
-		x = 0
-		count = 0
-		while x < 1:
-			for i in match:
-				if match[x] == i:
-					count += 1 
-			x += 1
-		if count == 4:
-			player.rank = 7
-			high_card(match, player)
-		else:
-			player.rank = 2 
-			high_card(match, player)
+
+	dictionary2 = {}
+	for i in card_value:
+		dictionary2[i] = []
 	
-	if len(match) == 5:
-		player.rank = 10
-		high_card(match, player)
+	for i in card_value:
+		dictionary2[i].append(i)
+
+	pcount = 0
+	temp = []
+	pair = False
+	trips = False
+	quads = False
+	for i in dictionary2:
+		if len(dictionary2[i]) == 2:
+			pair = True
+			pcount += 1
+			temp.append(dictionary2[i]) 
+		if len(dictionary2[i]) == 3:
+			trips = True
+			temp.append(dictionary2[i])
+		if len(dictionary2[i]) == 4:
+			quads = True
+			temp.append(dictionary2[i])
+	
+	if pair == True:
+		if quads == True:
+			player.rank = 7
+			high_card(temp, player)
+		elif pcount >= 2:
+			player.rank = 2
+			high_card(temp, player)
+		elif trips == True:
+			player.rank = 6
+			high_card(temp, player)
+		else:
+			player.rank = 1
+			high_card(temp, player)	
+
+	if trips == True:
+		if pair == False:
+			player.rank = 3
+			high_card(temp, player)
 
 class player:
 	def __init__(self):
@@ -187,3 +251,13 @@ class player:
 		self.rank = 0 
 		self.hcard = 0 
 		self.kicker = 0 
+
+new = player()
+new.hand = ['s', 13, 'c', 3]
+board = ['d', 13, 's', 13, 's', 3, 's', 3, 'd', 9]
+
+x = hand_data(new.hand, board)
+y = get_rank(x, new)
+
+print(new.rank)
+
