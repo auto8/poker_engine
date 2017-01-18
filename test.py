@@ -6,6 +6,33 @@ def get_players():
 	players = int(input('how many in hand: '))
 	return players 
 
+def check_winners(*kwargs):
+	hcards = []
+	kickers = []
+	for i in kwargs[0]:
+		hcards.append(i.hcard)
+	
+	x = max(hcards)
+	same = []
+	y = 0 
+	for i in kwargs[0]:
+		if i.hcard == x:
+			same.append(i)
+	if len(same) > 1:
+		hmm = []
+		for i in same:
+			if i.kicker > y:
+				y = i.kicker
+				hmm.append(i)
+		if len(hmm) > 1:
+			return hmm
+		else:
+			return hmm[0]
+	else:
+		for i in kwargs[0]:
+			if i.hcard == x:
+				return i
+	
 
 players = get_players()
 
@@ -37,15 +64,16 @@ for i in plist:
 		continue
 	elif i.rank == winner.rank:
 		temp.append(i)
-x = 0 
-if len(temp) > 1:
-	for i in temp:
-		if i.hcard > x:
-			x = i.hcard
-			winner = i 
-	for i in temp:
-		display(i.hand)
-		print(i.hcard)
 
-	display(winner.hand)
-	display(board)	
+if len(temp) > 1:
+	winner = check_winners(temp)
+else:
+	winner = temp[0]
+
+for i in plist:
+	display(i.hand)
+
+print()
+display(board)
+print()
+display(winner.hand)
