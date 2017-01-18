@@ -106,7 +106,6 @@ def high_card(hand, player):
 				player.kicker = l[0]
 			else:
 				player.kicker = l[1]
-		print(player.hcard, player.kicker)	
 	
 	if player.rank == 2:
 		x, y = 0, 0 
@@ -132,7 +131,6 @@ def high_card(hand, player):
 				x = hand[1][1]
 				y = hand[0][0]
 		player.hcard, player.kicker = x, y
-		print(player.hcard, player.kicker)
 	
 	if player.rank == 3:
 		x = 0
@@ -144,12 +142,22 @@ def high_card(hand, player):
 		else:
 			x = hand[0][0]
 		player.hcard = x
-		print(player.hcard)	
+	
 	if player.rank == 4:
 		player.hcard = max(hand)
 
 	if player.rank == 5:
-		player.hcard = max(hand)
+		l = [player.hand[1], player.hand[3]]
+		x = 0 
+		check = False
+		for i in l:
+			if i in hand:
+				if i > x:
+					x = i
+					check = True
+		if check == False:
+			x = max(hand)
+		player.hcard = x
 		
 	if player.rank == 6:
 		for i in hand:
@@ -158,7 +166,6 @@ def high_card(hand, player):
 			if len(i) == 2:
 				player.kicker = i[0]
 
-
 	if player.rank == 7:
 		if len(hand) >= 2:
 			for i in hand:
@@ -166,7 +173,6 @@ def high_card(hand, player):
 					player.hcard = i[0]
 		else:
 			player.hcard = hand[0][0]
-		print(player.hcard)
 
 def get_rank(community, player):
 	suites = ['h', 's', 'c', 'd']
@@ -252,12 +258,4 @@ class player:
 		self.hcard = 0 
 		self.kicker = 0 
 
-new = player()
-new.hand = ['s', 13, 'c', 3]
-board = ['d', 13, 's', 13, 's', 3, 's', 3, 'd', 9]
-
-x = hand_data(new.hand, board)
-y = get_rank(x, new)
-
-print(new.rank)
 
