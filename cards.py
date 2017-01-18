@@ -55,39 +55,42 @@ def hand_data(hand, *args):
 		temp.append(i)
 	return temp 
 
-def straight(hand, a):
+def check(hand, islow):
+	if islow == True:
+		hand.remove(14)
 	y = sorted(hand)
 	start = 0
-	dups = []
-	for i in range(1, len(y)):
-		if y[start] == y[i]:
-			dups.append((y[start]))
-		start += 1 
-	for i in dups:
-		y.remove(i)
-		a = len(y)
-	start = 0
 	temp = []
-	count = 1
-	x = []
-	for i in range(1, a):
-		if y[start] + 1 == y[i]:
+	found = []
+	for i in range(1, len(hand)):
+		if y[start] + 1 == y[i]: 
 			if start == 0:
 				temp.append(y[start])
 				temp.append(y[i])
-				count += 1 
 			else:
 				temp.append(y[i])
-				count += 1 
 		else:
-			count = 1
 			temp = []
-		if count == 5:
-			x = temp
+		if islow == True:
+			if len(temp) >= 4:
+				found = temp 
+		else:
+			if len(temp) >= 5:
+				found = temp
 		start += 1 
-	if len(x) >= 5:
-		return x 
+	return found
 
+def straight(hand):
+	low = [14, 2, 3, 4, 5]
+	for i in low:
+		if i in hand:
+			found = True
+		else:
+			found = False 
+			break 
+	our_straight = check(hand, found)
+	if len(our_straight) != 0:
+		return our_straight
 
 def high_card(hand, player):
 	l = [player.hand[1], player.hand[3]]
@@ -145,7 +148,7 @@ def high_card(hand, player):
 	
 	if player.rank == 4:
 		player.hcard = max(hand)
-
+	
 	if player.rank == 5:
 		l = [player.hand[1], player.hand[3]]
 		x = 0 
@@ -188,7 +191,7 @@ def get_rank(community, player):
 
 	for i in suites:
 		if len(dictionary[i]) >= 5:
-			check = straight(dictionary[i], len(dictionary[i]))
+			check = straight(dictionary[i])
 			if check != None:
 				if sorted(check, reverse=True) == royal:
 					player.rank = 9
@@ -203,10 +206,9 @@ def get_rank(community, player):
 		for x in dictionary[i]:
 			card_value.append(x)
 	
-	if straight(card_value, len(card_value)) != None:
+	if straight(card_value) != None:
 		player.rank = 4
-		high_card(straight(card_value, len(card_value)), player)
-	
+		high_card(straight(card_value), player)	
 
 	dictionary2 = {}
 	for i in card_value:
